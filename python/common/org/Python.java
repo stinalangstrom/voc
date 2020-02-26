@@ -1,4 +1,5 @@
 package org;
+import java.io.*;   //maybe import less
 
 public class Python {
     public static java.util.Map<java.lang.String, org.python.Object> builtins;
@@ -10,6 +11,8 @@ public class Python {
     static {
         // Load all the builtins into the dictionary as callables
         builtins = new java.util.HashMap<java.lang.String, org.python.Object>();
+
+         builtins.put("open", org.python.types.Type.pythonType(org.python.types.Open.class));
 
         // Add the most basic type
         builtins.put("object", org.python.types.Type.pythonType(org.python.types.Object.class));
@@ -1395,6 +1398,9 @@ public class Python {
             args = {"file"},
             default_args = {"mode", "buffering", "encoding", "errors", "newline", "closefd", "opener"}
     )
+
+
+    
     public static org.python.Object open(
             org.python.Object file,
             org.python.Object mode,
@@ -1403,8 +1409,100 @@ public class Python {
             org.python.Object errors,
             org.python.Object newline,
             org.python.Object closefd,
-            org.python.Object opener) {
-        throw new org.python.exceptions.NotImplementedError("Builtin function 'open' not implemented");
+            org.python.Object opener) throws IOException{
+                //System.out.println("starting function");
+                //System.out.println(file);
+
+                return (new org.python.types.Open(file, mode, buffering, encoding, errors, newline, closefd, opener)).open2();
+
+                /*
+                if(file == null){
+                    System.out.println(file.toString());
+                    throw new org.python.exceptions.TypeError("open expected a file");
+
+                }
+
+                
+                File toFile = new File(file.toString());
+                //System.out.println(toFile);
+                System.out.println(buffering);
+                System.out.println(mode);
+
+                if(buffering == null){  //default
+                    if(mode.toString() == "r"){
+                        FileReader fr = new FileReader(toFile);
+                        return (org.python.Object) fr;
+                    }else if(mode.toString() == "w"){
+                        System.out.println("HEREEeeeeeee");
+                        FileWriter fw = new FileWriter(toFile);
+                        return fw.toObject();
+                    }
+                }
+
+
+                return file;
+                */
+
+                /*
+                // no buffering
+                if(buffering.toString() == "0"){
+                    if(mode.toString() == "r"){
+                        FileReader fr = new FileReader(toFile);
+                        return (org.python.Object) fr;
+                    }
+                    else if(mode.toString() == "w"){
+                        FileWriter fw = new FileWriter(toFile);
+                        return (org.python.Object) fw;
+                    }
+                    else if(mode.toString() == "a"){
+                        FileWriter fw = new FileWriter(toFile, true);
+                        return (org.python.Object) fw;
+                    }
+                    else if(mode.toString() == "b"){
+                        InputStream is = new FileInputStream(toFile);
+                        return (org.python.Object) is;
+                    }
+                    else if(mode.toString() == "t"){
+                        FileReader fr = new FileReader(toFile);
+                        return (org.python.Object) fr;
+                    }
+                    else if(mode.toString() == "+"){       // read and write
+                        FileReader fr = new FileReader(toFile);
+                        FileWriter fw = new FileWriter(toFile);
+                        return (org.python.Object) fr;//, fw;  // NOT SURE IF OBJECT CAN TAKE TWO ARGUMENTS
+
+                    }
+                    else{                       //when mode is empty
+                        FileReader fr = new FileReader(toFile);
+                        return (org.python.Object) fr;
+                    }
+
+                   // fixed sized chunk buffer, LARGER STRING??
+ 
+                // line buffering
+                }else if(buffering.toString() == "1"){
+                // default
+                }else if(buffering.toString() ==  "-1"){      // buffer < 0
+
+                }else {   //if(buffering.toString() > "1"
+                    if(mode.toString() == "r"){
+                        FileReader fr = new FileReader(toFile);
+                        return (org.python.Object) fr;
+                    }
+                    else if(mode.toString() == "w"){
+                        FileWriter fw = new FileWriter(toFile);
+                        return (org.python.Object) fw;
+                    }       
+
+                }
+    
+
+                // default return
+                FileReader fr = new FileReader(toFile);
+                return (org.python.Object) fr;*/
+                //return file;
+               
+        //throw new org.python.exceptions.NotImplementedError("Builtin function 'open' not implemented");
     }
 
     @org.python.Method(
