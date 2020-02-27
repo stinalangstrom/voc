@@ -12,8 +12,6 @@ public class Python {
         // Load all the builtins into the dictionary as callables
         builtins = new java.util.HashMap<java.lang.String, org.python.Object>();
 
-         builtins.put("open", org.python.types.Type.pythonType(org.python.types.Open.class));
-
         // Add the most basic type
         builtins.put("object", org.python.types.Type.pythonType(org.python.types.Object.class));
 
@@ -1410,40 +1408,27 @@ public class Python {
             org.python.Object newline,
             org.python.Object closefd,
             org.python.Object opener) throws IOException{
-                //System.out.println("starting function");
-                //System.out.println(file);
-
-                return (new org.python.types.Open(file, mode, buffering, encoding, errors, newline, closefd, opener)).open2();
-
-                /*
-                if(file == null){
-                    System.out.println(file.toString());
-                    throw new org.python.exceptions.TypeError("open expected a file");
-
-                }
-
                 
-                File toFile = new File(file.toString());
-                //System.out.println(toFile);
-                System.out.println(buffering);
-                System.out.println(mode);
-
-                if(buffering == null){  //default
-                    if(mode.toString() == "r"){
-                        FileReader fr = new FileReader(toFile);
-                        return (org.python.Object) fr;
-                    }else if(mode.toString() == "w"){
-                        System.out.println("HEREEeeeeeee");
-                        FileWriter fw = new FileWriter(toFile);
-                        return fw.toObject();
-                    }
+          
+                if(encoding != null){
+                    throw new org.python.exceptions.NotImplementedError("Non-default encoding not implemented");
+                }
+                if(newline != null){
+                    throw new org.python.exceptions.NotImplementedError("Non-default newline not implemented");
+                }
+                if(opener != null){
+                    throw new org.python.exceptions.NotImplementedError("Non-default opener not implemented");
+                }
+                if(closefd != null){
+                    throw new org.python.exceptions.NotImplementedError("Non-default closefd not implemented");
+                }
+                if(errors != null){
+                    throw new org.python.exceptions.NotImplementedError("Non-default errors not implemented");
                 }
 
 
-                return file;
-                */
-
-                /*
+                File toFile = new File(file.toString());
+                
                 // no buffering
                 if(buffering.toString() == "0"){
                     if(mode.toString() == "r"){
@@ -1466,10 +1451,11 @@ public class Python {
                         FileReader fr = new FileReader(toFile);
                         return (org.python.Object) fr;
                     }
-                    else if(mode.toString() == "+"){       // read and write
+                    // read and write, need to return two objects. Will need to create an object that can handle java objects
+                    else if(mode.toString() == "+"){       
                         FileReader fr = new FileReader(toFile);
                         FileWriter fw = new FileWriter(toFile);
-                        return (org.python.Object) fr;//, fw;  // NOT SURE IF OBJECT CAN TAKE TWO ARGUMENTS
+                        return (org.python.Object) fr; //(fr, fw) insted of fr;  
 
                     }
                     else{                       //when mode is empty
@@ -1477,32 +1463,78 @@ public class Python {
                         return (org.python.Object) fr;
                     }
 
-                   // fixed sized chunk buffer, LARGER STRING??
  
                 // line buffering
                 }else if(buffering.toString() == "1"){
-                // default
-                }else if(buffering.toString() ==  "-1"){      // buffer < 0
-
-                }else {   //if(buffering.toString() > "1"
                     if(mode.toString() == "r"){
-                        FileReader fr = new FileReader(toFile);
+                        BufferedReader fr = new BufferedReader(new FileReader(toFile));
                         return (org.python.Object) fr;
                     }
                     else if(mode.toString() == "w"){
-                        FileWriter fw = new FileWriter(toFile);
+                        BufferedWriter fw = new BufferedWriter(new FileWriter(toFile));
                         return (org.python.Object) fw;
-                    }       
+                    }
+                    else if(mode.toString() == "a"){
+                        BufferedWriter fr = new BufferedWriter(new FileWriter(toFile, true));
+                        return (org.python.Object) fr;
+                    }
+                    else if(mode.toString() == "b"){
+                        InputStream is = new BufferedInputStream(new FileInputStream(toFile));
+                        return (org.python.Object) is;
+                    }
+                    else if(mode.toString() == "t"){
+                        BufferedReader fr = new BufferedReader(new FileReader(toFile));
+                        return (org.python.Object) fr;
+                    }
+                    // read and write, need to return two objects. Will need to create an object that can handle java objects
+                    else if(mode.toString() == "+"){      
+                        BufferedReader fr = new BufferedReader(new FileReader(toFile));
+                        BufferedWriter fw = new BufferedWriter(new FileWriter(toFile));
+                        return (org.python.Object) fr; //(fr, fw) insted of fr
+                    }
+                    else{                    
+                        BufferedReader fr = new BufferedReader(new FileReader(toFile));
+                        return (org.python.Object) fr;
+                    }
+
+                // buffering < 0
+                }else if(buffering.toString() ==  "-1"){      
+                    throw new org.python.exceptions.NotImplementedError("Heuristic buffering not implemented");
+
+                }else { 
+                    int size =  Integer.parseInt(buffering.toString()); 
+                    if(mode.toString() == "r"){
+                        BufferedReader fr = new BufferedReader(new FileReader(toFile), size);
+                        return (org.python.Object) fr;
+                    }
+                    else if(mode.toString() == "w"){
+                        BufferedWriter fw = new BufferedWriter(new FileWriter(toFile), size);
+                        return (org.python.Object) fw;
+                    }
+                    else if(mode.toString() == "a"){
+                        BufferedWriter fr = new BufferedWriter(new FileWriter(toFile, true), size);
+                        return (org.python.Object) fr;
+                    }
+                    else if(mode.toString() == "b"){
+                        InputStream is = new BufferedInputStream(new FileInputStream(toFile), size);
+                        return (org.python.Object) is;
+                    }
+                    else if(mode.toString() == "t"){
+                        BufferedReader fr = new BufferedReader(new FileReader(toFile), size);
+                        return (org.python.Object) fr;
+                    }
+                    // read and write, need to return two objects. Will need to create an object that can handle java objects
+                    else if(mode.toString() == "+"){      
+                        BufferedReader fr = new BufferedReader(new FileReader(toFile), size);
+                        BufferedWriter fw = new BufferedWriter(new FileWriter(toFile), size);
+                        return (org.python.Object) fr; //(fr, fw) insted of fr
+                    }
+                    else{                    
+                        BufferedReader fr = new BufferedReader(new FileReader(toFile), size);
+                        return (org.python.Object) fr;
+                    }      
 
                 }
-    
-
-                // default return
-                FileReader fr = new FileReader(toFile);
-                return (org.python.Object) fr;*/
-                //return file;
-               
-        //throw new org.python.exceptions.NotImplementedError("Builtin function 'open' not implemented");
     }
 
     @org.python.Method(
